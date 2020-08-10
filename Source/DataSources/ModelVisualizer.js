@@ -364,6 +364,13 @@ ModelVisualizer.prototype.getBoundingSphere = function (entity, result) {
     return BoundingSphereState.PENDING;
   }
 
+  if (!model.distanceDisplayConditionMet) {
+    // distance display condition failed so use the unclamped matrix since
+    // the clamped matrix is only updated when condition is met
+    BoundingSphere.transform(model.boundingSphere, model.modelMatrix, result);
+    return BoundingSphereState.DISTANCE_DISPLAY_CONDITION_FAILED;
+  }
+
   if (model.heightReference === HeightReference.NONE) {
     BoundingSphere.transform(model.boundingSphere, model.modelMatrix, result);
   } else {

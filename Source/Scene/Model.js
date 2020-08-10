@@ -296,6 +296,9 @@ function Model(options) {
    */
   this.show = defaultValue(options.show, true);
 
+  // stores the result of the distance display test done in the update function
+  this._displayConditionPassed = true;
+
   /**
    * The silhouette color.
    *
@@ -1278,6 +1281,16 @@ Object.defineProperties(Model.prototype, {
   credit: {
     get: function () {
       return this._credit;
+    },
+  },
+  /**
+   * Returns the result of the distance display condition test done in the update function.
+   * @memberof Model.prototype
+   * @type {Boolean}
+   */
+  distanceDisplayConditionMet: {
+    get: function () {
+      return this._displayConditionPassed;
     },
   },
 });
@@ -5403,12 +5416,12 @@ Model.prototype.update = function (frameState) {
   var translucent = isTranslucent(this);
   var invisible = isInvisible(this);
   var backFaceCulling = this.backFaceCulling;
-  var displayConditionPassed = defined(this.distanceDisplayCondition)
+  this._displayConditionPassed = defined(this.distanceDisplayCondition)
     ? distanceDisplayConditionVisible(this, frameState)
     : true;
   var show =
     this.show &&
-    displayConditionPassed &&
+    this._displayConditionPassed &&
     this.scale !== 0.0 &&
     (!invisible || silhouette);
 

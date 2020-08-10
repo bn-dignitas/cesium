@@ -329,7 +329,7 @@ DataSourceDisplay.prototype._postRender = function () {
 
 var getBoundingSphereArrayScratch = [];
 var getBoundingSphereBoundingSphereScratch = new BoundingSphere();
-
+var nonVisibleBoundingSphereArrayScratch = [];
 /**
  * Computes a bounding sphere which encloses the visualization produced for the specified entity.
  * The bounding sphere is in the fixed frame of the scene's globe.
@@ -381,12 +381,13 @@ DataSourceDisplay.prototype.getBoundingSphere = function (
 
   var boundingSpheres = getBoundingSphereArrayScratch;
   var tmp = getBoundingSphereBoundingSphereScratch;
-
+  var nonVisibleBoundingSpheres = nonVisibleBoundingSphereArrayScratch;
   var count = 0;
+  var nonVisibleCount = 0;
+
   var state = BoundingSphereState.DONE;
   var visualizers = dataSource._visualizers;
   var visualizersLength = visualizers.length;
-
   for (i = 0; i < visualizersLength; i++) {
     var visualizer = visualizers[i];
     if (defined(visualizer.getBoundingSphere)) {
@@ -399,12 +400,26 @@ DataSourceDisplay.prototype.getBoundingSphere = function (
           boundingSpheres[count]
         );
         count++;
+      } else if (
+        state === BoundingSphereState.DISTANCE_DISPLAY_CONDITION_FAILED
+      ) {
+        nonVisibleBoundingSpheres[nonVisibleCount] = BoundingSphere.clone(
+          tmp,
+          nonVisibleBoundingSpheres[nonVisibleCount]
+        );
+        nonVisibleCount++;
       }
     }
   }
 
   if (count === 0) {
-    return BoundingSphereState.FAILED;
+    if (nonVisibleCount === 0) {
+      return BoundingSphereState.FAILED;
+    }
+
+    // use non-visible bounding spheres to calculate position
+    boundingSpheres = nonVisibleBoundingSpheres;
+    count = nonVisibleCount;
   }
 
   boundingSpheres.length = count;

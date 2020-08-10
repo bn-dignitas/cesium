@@ -22,5 +22,11 @@ var BoundingSphereState = {
    * @constant
    */
   FAILED: 2,
+  /**
+   * BoundingSphere exists, but distance display condition failed
+   * @type BoundingSphereState
+   * @constant
+   */
+  DISTANCE_DISPLAY_CONDITION_FAILED: 3,
 };
 export default Object.freeze(BoundingSphereState);
